@@ -125,6 +125,9 @@ public class InteractionPanelHandlerServer {
     public void showProcessMessageContent(String pClientIP, int pClientPort, String pMessage){
         addToSyslog(new java.util.Date().toString() + " - " + pClientIP + ":" + pClientPort +" - " + pMessage);
     }
+    public void showErrorMessage(String pMessage){
+        addToSyslog(new java.util.Date().toString() + " - " + pMessage);
+    }
 
 	/**
      * Methode gibt den Text zurück, der im Message-Textfield steht.

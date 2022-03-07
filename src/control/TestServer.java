@@ -3,6 +3,8 @@ package control;
 import model.List;
 import view.Server.InteractionPanelHandlerServer;
 
+import java.time.LocalDateTime;
+
 /**Aus Gründen der Vereinfachung gibt es eine "Verzahnung" (gegenseitige Kennt-Beziehung --> Assoziation) zwischen TestServer und InteractionsPanelHandlerServer.
  *  Im fertigen Programm existiert jeweils ein Objekt. Beide Objekte kennen sich gegenseitig.
  * Created by AOS on 18.09.2017.
@@ -11,7 +13,18 @@ import view.Server.InteractionPanelHandlerServer;
 public class TestServer extends Server{
 
     private InteractionPanelHandlerServer panelHandler;
-    private List<String> clients;
+    private List<ClientObj> clients;
+    private final String split = "§§";
+    private class ClientObj {
+        private final int PORT;
+        private final String IP;
+        private String NAME = "";
+        public ClientObj(String pIP, int pPort){
+            IP = pIP;
+            PORT = pPort;
+        }
+
+    }
 
     public TestServer(int pPort, InteractionPanelHandlerServer panel) {
         super(pPort);
@@ -25,15 +38,54 @@ public class TestServer extends Server{
 
     @Override
     public void processNewConnection(String pClientIP, int pClientPort) {
-        clients.append(pClientIP+":"+pClientPort); //TODO 03a Erläutern Sie, was hier passiert
+        clients.append(new ClientObj(pClientIP, pClientPort)); //TODO 03a Erläutern Sie, was hier passiert
         //In die Liste mit Clients wird ein Neuer Client als String hinzugefuegt
         panelHandler.displayNewConnection(pClientIP,pClientPort);
+        send(pClientIP, pClientPort, "GIBNAME");
     }
 
     @Override
     public void processMessage(String pClientIP, int pClientPort, String pMessage) {
         panelHandler.showProcessMessageContent(pClientIP,pClientPort,pMessage); //TODO 03b Erläutern Sie, was hier passiert.
         //Wenn eine neue Nachricht ankommt, dann wird diese dargestellt
+        ClientObj tmpClient = getClientByIPandPORT(pClientIP, pClientPort);
+        if(tmpClient != null){
+            String[] mess = pMessage.split(split);
+            if (mess.length == 2){
+                if (mess[0].equals("NAME")){
+                    if(tmpClient.NAME.equals("")){
+                        if (!mess[1].isEmpty()){
+                            if (getClientByName(mess[1]) == null){
+                                tmpClient.NAME = mess[1];
+                                sendToAll("VERBUNDEN"+split+ LocalDateTime.now()+split+mess[1]);
+                            }else send(pClientIP, pClientPort, "NEUERNAME");
+                        }
+                    }else send(pClientIP, pClientPort, "DUHASTSCHONEINENNAMEN");
+                }
+            }
+        }else System.out.println("AAAAHHHHHH SOMETHING WENT WRONG");
+    }
+    private ClientObj getClientByName (String pname){
+        clients.toFirst();
+        while(clients.hasAccess()){
+            if(clients.getContent().NAME.equalsIgnoreCase(pname)){
+                return clients.getContent();
+            }
+            clients.next();
+        }
+
+        return null;
+    }
+    private ClientObj getClientByIPandPORT (String pIP, int pPort){
+        clients.toFirst();
+        while(clients.hasAccess()){
+            if(clients.getContent().IP.equalsIgnoreCase(pIP) && clients.getContent().PORT == pPort){
+                return clients.getContent();
+            }
+            clients.next();
+        }
+
+        return null;
     }
 
     @Override
@@ -79,7 +131,7 @@ public class TestServer extends Server{
         clients.toFirst();
         count = 0;
         while (clients.hasAccess()){
-            out[count] = clients.getContent();
+            out[count] = clients.getContent().IP + ":"+clients.getContent().PORT;
             clients.next();
             count++;
         }

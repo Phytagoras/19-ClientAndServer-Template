@@ -61,6 +61,19 @@ public class TestServer extends Server{
                             }else send(pClientIP, pClientPort, "NEUERNAME");
                         }
                     }else send(pClientIP, pClientPort, "DUHASTSCHONEINENNAMEN");
+                }else if (mess[0].equals("NACHRICHT")){
+                    sendToAll(LocalDateTime.now() + split + tmpClient.NAME + split + mess[1]);
+                }
+            }
+            if(mess.length == 3){
+                if (mess[0].equals("FLUESTER")){
+                    ClientObj clientObj = getClientByName(mess[1]);
+                    if(clientObj != null){
+                        send(clientObj.IP, clientObj.PORT, LocalDateTime.now() + split + tmpClient.NAME + split + mess[2]);
+                    }
+                    else {
+                        send(pClientIP, pClientPort, "NICHTVERBUNDEN");
+                    }
                 }
             }
         }else System.out.println("AAAAHHHHHH SOMETHING WENT WRONG");
@@ -92,18 +105,18 @@ public class TestServer extends Server{
     public void processClosingConnection(String pClientIP, int pClientPort) {
         //TODO 03c Erläutern Sie, was hier passiert.
         //Wenn eine Verbindung abbricht, dann wird der Client aus der Liste mit Clients entfernt
-
         clients.toFirst();
         while (clients.hasAccess()){
             if(clients.getContent().toString().contains(pClientIP)){
+                sendToAll("GETRENNT" + split + clients.getContent().NAME);
                 clients.remove();
             }else{
                 clients.next();
             }
         }
-
         panelHandler.displayClosingConnection(pClientIP, pClientPort);
     }
+
 
     /**
      * Sobald der Server geschlossen wird, werden die meisten Knöpfe wieder deaktiviert.

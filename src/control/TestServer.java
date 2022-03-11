@@ -58,6 +58,7 @@ public class TestServer extends Server{
                             if (getClientByName(mess[1]) == null){
                                 tmpClient.NAME = mess[1];
                                 sendToAll("VERBUNDEN"+split+ LocalDateTime.now()+split+mess[1]);
+                                panelHandler.updateConnections();
                             }else send(pClientIP, pClientPort, "NEUERNAME");
                         }
                     }else send(pClientIP, pClientPort, "DUHASTSCHONEINENNAMEN");
@@ -144,7 +145,7 @@ public class TestServer extends Server{
         clients.toFirst();
         count = 0;
         while (clients.hasAccess()){
-            out[count] = clients.getContent().IP + ":"+clients.getContent().PORT;
+            out[count] = clients.getContent().IP + ":"+clients.getContent().PORT + ":" + clients.getContent().NAME;
             clients.next();
             count++;
         }

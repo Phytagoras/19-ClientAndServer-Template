@@ -150,7 +150,7 @@ public class InteractionPanelHandlerServer {
 	/**
      * Methode wird aufgerufen, sobald ein neuer Client sich angemeldet oder ein alter Client sich abgemeldet hat.
      */
-    private void updateConnections(){
+    public void updateConnections(){
         textAreaClients.setText("Kein Client angemeldet.");
         String[] connections = server.getClients();
         for(int i = 0; i < connections.length; i++){

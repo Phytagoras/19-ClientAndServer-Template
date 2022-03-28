@@ -23,7 +23,7 @@ public class InteractionPanelHandlerClient {
     public InteractionPanelHandlerClient() {
         createButtons();
 
-        serverIP.setText("127.0.0.1");
+        serverIP.setText("10.17.128.93");
         serverPort.setText("56789");
         message.setText("Eine Nachricht, die Sie senden können. Kann Befehlswörter enthalten.");
 
